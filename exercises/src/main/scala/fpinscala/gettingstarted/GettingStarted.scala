@@ -149,12 +149,9 @@ object PolymorphicFunctions {
   // an `Array[A]` is sorted
   def isSorted[A](as: Array[A], gt: (A,A) => Boolean): Boolean = {
     def loop(i:Int) : Boolean = {
-      if (as.length > i+1){
-        if(gt(as(i),as(i+1)))
-          loop(i+1)
-        else false
-      }
-      else true
+      if (as.length <= i+1) true
+      else if(gt(as(i+1),as(i))) false
+      else loop(i+1)
     }
     loop(0)
   }
@@ -176,7 +173,7 @@ object PolymorphicFunctions {
   // NB: The `Function2` trait has a `curried` method already
 
   // Exercise 4: Implement `uncurry`
-  def uncurry[A,B,C](f: A => B => C): (A, B) => C = (a,b) => f(a).apply(b)
+  def uncurry[A,B,C](f: A => B => C): (A, B) => C = (a,b) => f(a)(b)
 
   /*
   NB: There is a method on the `Function` object in the standard library,
