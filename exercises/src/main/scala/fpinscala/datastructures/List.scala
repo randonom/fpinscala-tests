@@ -35,44 +35,32 @@ object List {
     case _ => 101
   }
 
-  def append[A](a1: List[A], a2: List[A]): List[A] =
-    a1 match {
-      case Nil => a2
-      case Cons(h, t) => Cons(h, append(t, a2))
-    }
-
-  def foldRight[A, B](as: List[A], z: B)(f: (A, B) => B): B = // Utility functions
-    as match {
-      case Nil => z
-      case Cons(x, xs) => f(x, foldRight(xs, z)(f))
-    }
-
-  def sum2(ns: List[Int]) =
-    foldRight(ns, 0)((x, y) => x + y)
-
-  def product2(ns: List[Double]) =
-    foldRight(ns, 1.0)(_ * _) // `_ * _` is more concise notation for `(x,y) => x * y`; see sidebar
-
-
-  def tail[A](l: List[A]): List[A] = l match {
+  def tail[A](as: List[A]): List[A] = as match {
     case Nil => Nil
-    case Cons(h, t: List[A]) => t
+    case Cons(h, t) => t
   }
 
-  def setHead[A](l: List[A], h: A): List[A] = l match {
-    case Nil => Cons(h, Nil)
-    case Cons(head, tail) => Cons(h, tail)
+  def setHead[A](as: List[A], a: A): List[A] = as match {
+    case Nil => List(a)//Cons(a, Nil)
+    case Cons(h, t) => Cons(a, t)
   }
 
+  @tailrec
   def drop[A](l: List[A], n: Int): List[A] = l match {
     case Nil => Nil
     case _ if (n == 0) => l
     case Cons(h, t) => drop(t, n - 1)
   }
 
+  @tailrec
   def dropWhile[A](l: List[A], f: A => Boolean): List[A] = l match {
     case Cons(h, t) if (f(h)) => dropWhile(t, f)
     case _ => l
+  }
+
+  def append[A](a1: List[A], a2: List[A]): List[A] = a1 match {
+      case Nil => a2
+      case Cons(h, t) => Cons(h, append(t, a2))
   }
 
   def init[A](l: List[A]): List[A] = l match {
@@ -81,116 +69,74 @@ object List {
     case Cons(h, t) => Cons(h, init(t))
   }
 
-  def length[A](l: List[A]): Int = foldRight(l, 0)((_, acc) => acc + 1)
-
-  def foldLeft[A, B](l: List[A], z: B)(f: (B, A) => B): B = l match {
-    case Nil => z
-    case Cons(h, t) => foldLeft(t, (f(z, h)))(f)
+  def foldRight[A, B](as: List[A], z: B)(f: (A, B) => B): B = // Utility functions
+    as match {
+      case Nil => z
+      case Cons(x, xs) => f(x, foldRight(xs, z)(f))
   }
 
-  def sum3(l: List[Int]) =
-    foldLeft(l, 0)((x, y) => x + y)
+  def sumFR(ns: List[Int]) = foldRight(ns, 0)((x, y) => x + y)
 
-  def product3(l: List[Double]) =
-    foldLeft(l, 1.0)(multi)
+  def productFR(ns: List[Double]) = foldRight(ns, 1.0)(_ * _) // `_ * _` is more concise notation for `(x,y) => x * y`; see sidebar
 
-  //foldLeft(l,1.0)((x,y)=> x * y)
+  def lengthFR[A](l: List[A]): Int = foldRight(l, 0)((_, acc) => acc + 1)
 
-  def multi(x: Double, y: Double) = y
-
-  def length2[A](l: List[A]): Int = foldLeft(l, 0)((acc, _) => acc + 1)
-
-  def reverseList[A](l: List[A]): List[A] = {
-
-    def loop(l: List[A]): List[A] = l match {
-      case Cons(h, Nil) => l
-      case Cons(h, t) => setTail(h, loop(t))
-      case Nil => Nil
-    }
-    loop(l)
+  @tailrec
+  def foldLeft[A, B](as: List[A], z: B)(f: (B, A) => B): B =
+    as match {
+      case Nil => z
+      case Cons(h, t) => foldLeft(t, (f(z, h)))(f)
   }
 
-  def reverseList2[A](l: List[A]): List[A] = {
-    // foldRight(l,Nil)(setTail)
-    ???
-  }
+  def sumFL(l: List[Int]) = foldLeft(l, 0)((x, y) => x + y)
 
-  def setTail[A](n: A, l: List[A]): List[A] = l match {
-    case Nil => Cons(n, Nil)
-    case Cons(h, t) => Cons(h, setTail(n, t))
-  }
+  def productFL(l: List[Double]) = foldLeft(l,1.0)((x,y)=> x * y)
+
+  def lengthFL[A](l: List[A]): Int = foldLeft(l, 0)((acc, _) => acc + 1)
+
+  def reverse[A](l: List[A]): List[A] = foldLeft(l,Nil:List[A])((b,a) => Cons(a,b))
+
+  def appendFR[A](l1: List[A], l2: List[A]): List[A] = foldRight(l1,l2)((a,b) => Cons(a,b))
+
+  def appendFL[A](l1: List[A], l2: List[A]): List[A] = foldLeft(l2, l1)((b, a) => setTail(b,a))
+
+  def setTail[A](l: List[A],a:A): List[A] = foldRight(l,Cons(a,Nil))((a,b) => Cons(a,b))
 
   def concat[A](l1: List[List[A]], l2: List[List[A]]): List[A] = {
-    append(foldLeft(l1, List[A]())(append),
-      foldLeft(l2, List[A]())(append))
+    append(foldLeft(l1, List[A]())(append),foldLeft(l2, List[A]())(append))
   }
 
-  def append2[A](l1: List[A], l2: List[A]): List[A] = foldLeft(l2, l1)((b, a) => setTail(a, b))
+  def addOneFL(l:List[Int]): List[Int] = foldLeft(l,List[Int]())((b,a)=> setTail(b,a+1))
 
-  //def addOne(l:List[Int]): List[Int] = foldLeft(l,List[Int]())((b,a)=> setTail(a+1,b))
-  def addOne(l: List[Int]): List[Int] = foldRight(l, List[Int]())((b, a) => Cons(b + 1, a))
+  def addOneFR(l: List[Int]): List[Int] = foldRight(l, List[Int]())((a,b) => Cons(a+1,b))
 
-  def doubleToString(l: List[Double]): List[String] = foldRight(l, List[String]())((b, a) => Cons(b.toString, a))
+  def doubleToString(l: List[Double]): List[String] = foldRight(l, List[String]())((a,b) => Cons(a.toString,b))
 
-  def map[A, B](l: List[A])(f: A => B): List[B] = foldRight(l, List[B]())((b, a) => Cons(f(b), a))
+  def map[A, B](l: List[A])(f: A => B): List[B] = foldRight(l, List[B]())((a,b) => Cons(f(a),b))
 
-  def flatMap2[A,B](as: List[A])(f: A => List[B]): List[B] = as match {
-    case Nil => List[B]()
-    case Cons(h,t) => append(f(h),flatMap2(t)(f))
-  }
+  def filter[A](as: List[A])(f:A => Boolean): List[A] = foldRight(as,List[A]())((a,b) => if (f(a)) Cons(a,b) else b)
 
   def flatMap[A,B](as: List[A])(f: A => List[B]): List[B] = foldLeft(as,List[B]())((b,a) => append(b,f(a)))
 
+  def filterFlatMap[A](as: List[A])(f:A => Boolean): List[A]= flatMap(as)(a => if (f(a)) Cons(a,Nil) else Nil)
 
-  def filter[A](as: List[A])(f: A => Boolean): List[A] = {
-    //  case Nil => Nil
-    // case Cons(h,t) if (f(h)) => filter()
-  ???
-  }
-
-  def func[A](h: A,f:A => Boolean, list: List[A]): List[A] = {
-    if (f(h)) Cons(h,list)
-    else list
-  }
-
-  def remove[A](as: List[A],f:A => Boolean): List[A] = as match {
-    case Nil => List[A]()
-    case Cons(h,t) => func(h,f,remove(t,f))
-  }
-
-  def remove2[A](as: List[A],f:A => Boolean): List[A] = {
-
-    @tailrec
-    def loop(as:List[A],acc:List[A],f:A => Boolean): List[A] = as match {
-      case Nil => acc
-      case Cons(h,t) if (f(h)) => loop(t,setTail(h,acc),f)
-      case Cons(h,t) => loop(t,acc,f)
-    }
-    loop(as,Nil,f)
-  }
-
-  def remove3[A](as:List[A],f: A=> Boolean): List[A] = {
-    flatMap(as)((a)=> if (f(a)) Cons(a,Nil) else List[A]())
-  }
-
-  @tailrec
-  def getelementatpos(as:List[Int],pos: Int): Int = as match {
-    case _ if (pos > length(as)-1) => -1
-    case Cons(h,_) if (pos == 0) => h
-    case Cons(h,t) => getelementatpos(t,pos-1)
-  }
-
-  def addList(l1: List[Int], l2:List[Int]): List[Int] = {
+  def addListItems(l1: List[Int], l2:List[Int]): List[Int] = {
     @tailrec
     def loop (l1:List[Int],l2:List[Int],n2:Int,acc: List[Int],pos: Int): List[Int] = l1 match {
       case Nil => acc
       case Cons(h,t) if (n2 == -1) => append(acc,l1)
-      case Cons(h,t) => loop(t,l2,getelementatpos(l2,pos+1),setTail(h+n2,acc),pos+1)
+      case Cons(h,t) => loop(t,l2,getItemAtPos(l2,pos+1),setTail(acc,h+n2),pos+1)
     }
 
-    if (length(l1)> length(l2)) loop(l1,l2,getelementatpos(l2,0),List[Int](),0)
-    else loop(l2,l1,getelementatpos(l1,0),List[Int](),0)
+    if (lengthFL(l1)> lengthFL(l2)) loop(l1,l2,getItemAtPos(l2,0),List[Int](),0)
+    else loop(l2,l1,getItemAtPos(l1,0),List[Int](),0)
   }
 
+  @tailrec
+  def getItemAtPos(as:List[Int],pos: Int): Int = as match {
+    case _ if (pos > lengthFL(as)-1) => -1
+    case Cons(h,_) if (pos == 0) => h
+    case Cons(h,t) => getItemAtPos(t,pos-1)
+  }
 
- }
+}
