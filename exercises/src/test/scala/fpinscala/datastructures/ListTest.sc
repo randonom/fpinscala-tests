@@ -142,3 +142,6 @@ List.addListItems(List(1),a)
 
 //3.22
 println("3.23")
+
+println("hasSubSequence")
+List.hasSubSequence(List(1,2), List(1,1,1))

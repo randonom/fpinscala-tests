@@ -139,4 +139,21 @@ object List {
     case Cons(h,t) => getItemAtPos(t,pos-1)
   }
 
+  def head[A](l:List[A]): A = l match {
+    case Nil => ???
+    case Cons(h,t) => h
+  }
+  def compareSubSequence[A](l1: List[A], l2:List[A]): Boolean = l1 match {
+      case _ if (l2 == Nil) => true
+      case Cons(h,t) if (h.equals(head(l2))) => compareSubSequence(t,tail(l2))
+      case _ => false
+    }
+
+  def hasSubSequence[A](l1:List[A], l2:List[A]): Boolean = l1 match {
+    case Nil => false
+    case _ if (lengthFL(l1) < lengthFL(l2)) => false
+    case _ if (compareSubSequence(l1,l2)) => true
+    case Cons(h,t) => hasSubSequence(t,l2)
+  }
+
 }
